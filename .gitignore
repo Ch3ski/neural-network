@@ -67,6 +67,9 @@ vcpkg_installed/
 # debug information files
 *.dwo
 
+#VS code
+.vscode/
+
 # test output & cache
 Testing/
 .cache/
