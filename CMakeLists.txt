@@ -23,6 +23,12 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_executable(network
     # Headers
+    src/neural_network/neuron.h
+    src/neural_network/layer.h
+    src/neural_network/network.h
+
+    src/linear_algebra/vector.h
+    src/linear_algebra/matrix.h
 
     # Sources
     src/main.cpp
