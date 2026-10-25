@@ -53,4 +53,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_executable(vector_tests tests/vector_tests.cpp)
     target_include_directories(vector_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
     add_test(NAME vector_tests COMMAND vector_tests)
+
+    add_executable(matrix_tests tests/matrix_tests.cpp)
+    target_include_directories(matrix_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
+    add_test(NAME matrix_tests COMMAND matrix_tests)
 endif()
