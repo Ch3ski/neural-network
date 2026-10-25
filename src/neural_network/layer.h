@@ -29,9 +29,11 @@ public:
 
     /// @brief Computes ξ = W · x + b and y = σ(ξ) for one input
     ///        Read the results with potentials() and outputs()
-    /// @param input Input vector x, the previous layer's outputs or the image for the first layer
+    /// @param input Input vector x, the previous layer's outputs or input to the network
     /// @pre input.size() == number of columns of W
     void forward(const linalg::Vector &input);
+
+    void backward(const linalg::Vector &input);
 
 private:
     /// Activation function type for σ and derivative σ′

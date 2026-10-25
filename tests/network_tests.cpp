@@ -71,9 +71,66 @@ static void test_evaluate_large_network() {
   }
 }
 
+/// @brief 2 → 2 (ReLU) → 2 (Softmax) network for the learning tests, the
+///        hidden layer is the one from test_evaluate_passes_outputs
+static nn::Network learning_network() {
+  nn::Layer hidden(Type::ReLu, linalg::Matrix{{1.0, -2.0}, {3.0, 4.0}},
+                   linalg::Vector{0.0, -1.0});
+  nn::Layer output(Type::Softmax, linalg::Matrix{{2.0, 0.5}, {1.0, -1.0}},
+                   linalg::Vector{-3.0, 6.0});
+  return nn::Network(std::vector<nn::Layer>{hidden, output});
+}
+
+/// @brief Checks the outputs for x = [1, 1] after one learning step with
+///        x = [1, 1], t = [1, 0], η = 0.1:
+///        forward  ξ1 = [−1, 6], y1 = [0, 6], ξ2 = [0, 0], y2 = [0.5, 0.5]
+///        backward δ2 = y2 − t = [−0.5, 0.5], W2ᵀ · δ2 = [−0.5, −0.75],
+///                 δ1 = [−0.5, −0.75] ⊙ ReLU′(ξ1) = [0, −0.75]
+///        update   W1 = [[1, −2], [3.075, 4.075]], b1 = [0, −0.925],
+///                 W2 = [[2, 0.8], [1, −1.3]],     b2 = [−2.95, 5.95]
+///        so now y1 = [0, 6.225] and ξ2 = [2.03, −2.1425]
+static void check_after_one_step(nn::Network &network) {
+  network.evaluate(linalg::Vector{1.0, 1.0});
+  // Softmax of two values: y0 = 1 / (1 + e^(ξ2[1] − ξ2[0]))
+  const double expected = 1.0 / (1.0 + std::exp(-2.1425 - 2.03));
+  CHECK_NEAR(network.outputs()[0], expected); // 0.5 before, moved toward t
+  CHECK_NEAR(network.outputs()[1], 1.0 - expected);
+}
+
+/// @brief One sample, one update
+static void test_learning_step() {
+  nn::Network network = learning_network();
+  const linalg::Vector x{1.0, 1.0};
+  const linalg::Vector t{1.0, 0.0};
+
+  network.evaluate(x);
+  CHECK_NEAR(network.outputs()[0], 0.5);
+  CHECK_NEAR(network.outputs()[1], 0.5);
+
+  network.backward(x, t);
+  network.update(0.1);
+  check_after_one_step(network);
+}
+
+/// @brief update clears the gradients, so a second update without a backward
+///        in between changes nothing
+static void test_update_clears_gradients() {
+  nn::Network network = learning_network();
+  const linalg::Vector x{1.0, 1.0};
+  const linalg::Vector t{1.0, 0.0};
+
+  network.evaluate(x);
+  network.backward(x, t);
+  network.update(0.1);
+  network.update(0.1);
+  check_after_one_step(network);
+}
+
 int main() {
   RUN(test_evaluate_passes_outputs);
   RUN(test_evaluate_xor);
   RUN(test_evaluate_large_network);
+  RUN(test_learning_step);
+  RUN(test_update_clears_gradients);
   return test::summary();
 }

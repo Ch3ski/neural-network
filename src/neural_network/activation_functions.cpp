@@ -10,24 +10,59 @@ namespace actifunc
 
 void Sigmoid(const linalg::Vector &potentials, linalg::Vector &outputs)
 {
-    outputs.apply(potentials, [](double x) { return 1.0 / (1.0 + std::exp(-x)); });
+    outputs.apply(potentials, [](double x) {
+        return 1 / (1.0 + std::exp(-x));
+    });
+}
+
+void SigmoidDerivative(const linalg::Vector &outputs, linalg::Vector &derivatives)
+{
+    derivatives.apply(outputs, [](double y) {
+        return y * (1.0 - y);
+    });
 }
 
 void Tanh(const linalg::Vector &potentials, linalg::Vector &outputs)
 {
-    // std::tanh is overloaded (float, double, ...), so it is wrapped in a
-    // lambda instead of being passed directly.
-    outputs.apply(potentials, [](double x) { return std::tanh(x); });
+    // std::tanh is overloaded (float, double, ...), so it is wrapper
+    outputs.apply(potentials, [](double x) {
+        return std::tanh(x);
+    });
+}
+
+void TanhDerivative(const linalg::Vector &outputs, linalg::Vector &derivatives)
+{
+    derivatives.apply(outputs, [](double y) {
+        return 1.0 - std::pow(y, 2);
+    });
 }
 
 void ReLu(const linalg::Vector &potentials, linalg::Vector &outputs)
 {
-    outputs.apply(potentials, [](double x) { return std::max(0.0, x); });
+    outputs.apply(potentials, [](double x) {
+        return std::max(0.0, x);
+    });
+}
+
+void ReLuDerivative(const linalg::Vector &output, linalg::Vector &derivatives)
+{
+    derivatives.apply(output, [](double y) {
+        return y > 0.0 ? 1.0 : 0.0;
+    });
 }
 
 void LeakyReLu(const linalg::Vector &potentials, linalg::Vector &outputs, double alpha)
 {
-    outputs.apply(potentials, [alpha](double x) { return x < 0.0 ? alpha * x : x; });
+    outputs.apply(potentials, [alpha](double x) {
+        return x < 0.0 ? alpha * x : x;
+    });
+}
+
+void LeakyReLuDerivative(const linalg::Vector &outputs, linalg::Vector &derivatives, double alpha)
+{
+    derivatives.apply(outputs, [alpha](double y) {
+        return y > 0.0 ? 1 : alpha;
+    });
 }
 
 void Softmax(const linalg::Vector &potentials, linalg::Vector &outputs)
@@ -78,6 +113,31 @@ void Apply(Type type, const linalg::Vector &potentials, linalg::Vector &outputs)
     }
 
     assert(false && "Apply: unknown activation type");
+}
+
+double Derivative(Type type, const double output)
+{
+    switch (type) {
+    case Type::Sigmoid:
+        return output * (1.0 - output);
+
+    case Type::Tanh:
+        return 1.0 - output * output;
+
+    case Type::ReLu:
+        return output > 0.0 ? 1.0 : 0.0;
+
+    case Type::LeakyReLu:
+        // Same α as the default of LeakyReLu
+        return output > 0.0 ? 1.0 : 0.01;
+
+    case Type::Softmax:
+        assert(false && "Derivative: Softmax has no derivative per neuron");
+        return 0.0;
+    }
+
+    assert(false && "Derivative: unknown activation type");
+    return 0.0;
 }
 
 } // namespace actifunc
