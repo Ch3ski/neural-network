@@ -27,6 +27,12 @@ public:
     /// @return Const reference to the potentials, no copy
     const linalg::Vector &potentials() const;
 
+    /// @brief Computes ξ = W · x + b and y = σ(ξ) for one input
+    ///        Read the results with potentials() and outputs()
+    /// @param input Input vector x, the previous layer's outputs or the image for the first layer
+    /// @pre input.size() == number of columns of W
+    void evaluate(const linalg::Vector &input);
+
 private:
     /// Activation function type for σ and derivative σ′
     actifunc::Type m_activationType;
