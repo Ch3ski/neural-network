@@ -1,5 +1,6 @@
-# Data
-data/
+# Data (CSVs are copied in manually, only the folder is tracked)
+data/*
+!data/.gitkeep
 
 # Prerequisites
 *.d
