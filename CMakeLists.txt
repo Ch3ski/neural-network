@@ -41,3 +41,15 @@ add_executable(network
 )
 
 target_include_directories(network PRIVATE ${CMAKE_SOURCE_DIR}/src)
+
+# Tests exist only in Debug builds, so run.sh (Release) never compiles them.
+# Build and run:
+#   cmake -S . -B build-debug -DCMAKE_BUILD_TYPE=Debug
+#   cmake --build build-debug && ctest --test-dir build-debug --output-on-failure
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    enable_testing()
+
+    add_executable(vector_tests tests/vector_tests.cpp)
+    target_include_directories(vector_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
+    add_test(NAME vector_tests COMMAND vector_tests)
+endif()
