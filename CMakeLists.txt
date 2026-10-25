@@ -39,8 +39,9 @@ add_executable(network
     # Sources
     src/main.cpp
     
-    src/neural_network/activation_functions.cpp
     src/neural_network/layer.cpp
+    src/neural_network/network.cpp
+    src/neural_network/activation_functions.cpp
 )
 
 target_include_directories(network PRIVATE ${CMAKE_SOURCE_DIR}/src)
