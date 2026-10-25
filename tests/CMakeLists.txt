@@ -21,3 +21,12 @@ add_executable(layer_tests
 )
 target_include_directories(layer_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
 add_test(NAME layer_tests COMMAND layer_tests)
+
+add_executable(network_tests
+    network_tests.cpp
+    ${CMAKE_SOURCE_DIR}/src/neural_network/network.cpp
+    ${CMAKE_SOURCE_DIR}/src/neural_network/layer.cpp
+    ${CMAKE_SOURCE_DIR}/src/neural_network/activation_functions.cpp
+)
+target_include_directories(network_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
+add_test(NAME network_tests COMMAND network_tests)
