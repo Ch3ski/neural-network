@@ -12,6 +12,20 @@ namespace nn
 class Layer
 {
 public:
+    /// @brief Creates a layer from given weights, e.g. hand-set ones for tests
+    /// @param activationType Activation function σ of every neuron
+    /// @param weights        Weight matrix W, size neurons × inputs
+    /// @param bias           Bias vector b, size neurons
+    /// @pre bias.size() == weights.rows()
+    explicit Layer(actifunc::Type activationType, linalg::Matrix weights, linalg::Vector bias);
+
+    /// @brief Returns the outputs y = σ(ξ) of the last forward pass, read-only
+    /// @return Const reference to the outputs, no copy
+    const linalg::Vector &outputs() const;
+
+    /// @brief Returns the inner potentials ξ = W · x + b of the last forward pass, read-only
+    /// @return Const reference to the potentials, no copy
+    const linalg::Vector &potentials() const;
 
 private:
     /// Activation function type for σ and derivative σ′
@@ -21,6 +35,21 @@ private:
     linalg::Matrix m_weights;
     /// Bias vector b, one value per neuron in this layer.
     linalg::Vector m_bias;
+
+    /// Inner potentials ξ = W · x + b from the last forward pass, one per neuron.
+    linalg::Vector m_potentials;
+    /// Outputs y = σ(ξ) from the last forward pass, one per neuron.
+    linalg::Vector m_outputs;
 };
+
+inline const linalg::Vector &Layer::potentials() const
+{
+    return m_potentials;
+}
+
+inline const linalg::Vector &Layer::outputs() const
+{
+    return m_outputs;
+}
 
 } // namespace nn
