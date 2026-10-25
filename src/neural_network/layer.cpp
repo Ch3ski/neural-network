@@ -18,7 +18,7 @@ Layer::Layer(actifunc::Type activationType, linalg::Matrix weights, linalg::Vect
     assert(m_bias.size() == m_weights.rows() && "Layer: bias size differs from the number of neurons");
 }
 
-void Layer::evaluate(const linalg::Vector &input)
+void Layer::forward(const linalg::Vector &input)
 {
     assert(input.size() == m_weights.cols() && "Layer: input size differs from the number of weight columns");
 

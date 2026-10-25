@@ -21,7 +21,7 @@ public:
     ///        one gets the outputs of the previous one
     ///        Read the result with outputs()
     /// @param input Input vector x
-    void evaluate(const linalg::Vector &input);
+    void forward(const linalg::Vector &input);
 
     /// @brief Returns the outputs of the last layer from the last evaluate, read-only
     /// @return Const reference to the outputs, no copy

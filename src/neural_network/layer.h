@@ -31,7 +31,7 @@ public:
     ///        Read the results with potentials() and outputs()
     /// @param input Input vector x, the previous layer's outputs or the image for the first layer
     /// @pre input.size() == number of columns of W
-    void evaluate(const linalg::Vector &input);
+    void forward(const linalg::Vector &input);
 
 private:
     /// Activation function type for σ and derivative σ′
