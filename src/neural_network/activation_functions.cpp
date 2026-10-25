@@ -1,6 +1,7 @@
 #include "neural_network/activation_functions.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 
@@ -50,6 +51,33 @@ void Softmax(linalg::Vector &neurons)
     });
 
     neurons /= sum;
+}
+
+void Apply(Type type, linalg::Vector &neurons)
+{
+    switch (type) {
+    case Type::Sigmoid:
+        Sigmoid(neurons);
+        return;
+
+    case Type::Tanh:
+        Tanh(neurons);
+        return;
+
+    case Type::ReLu:
+        ReLu(neurons);
+        return;
+
+    case Type::LeakyReLu:
+        LeakyReLu(neurons);
+        return;
+
+    case Type::Softmax:
+        Softmax(neurons);
+        return;
+    }
+
+    assert(false && "Apply: unknown activation type");
 }
 
 } // namespace actifunc

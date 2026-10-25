@@ -11,6 +11,15 @@
 namespace actifunc
 {
 
+/// Which activation function a layer uses.
+enum class Type {
+    Sigmoid,
+    Tanh,
+    ReLu,
+    LeakyReLu,
+    Softmax,
+};
+
 /// Logistic sigmoid: σ(ξ) = 1 / (1 + e^(−ξ))
 void Sigmoid(linalg::Vector &neurons);
 /// σ′(ξ) = σ(ξ) · (1 − σ(ξ))
@@ -32,9 +41,9 @@ void LeakyReLu(linalg::Vector &neurons, double alpha = 0.01);
 void LeakyReLuDerivative(const linalg::Vector &potentials, linalg::Vector &derivatives, double alpha = 0.01);
 
 /// Softmax for the output layer: σ(ξ)ᵢ = e^(ξᵢ) / Σⱼ e^(ξⱼ)
-/// Subtract max(ξ) before exponentiating, otherwise e^(ξ) can overflow.
-/// No derivative function: with cross-entropy loss the output layer's
-/// δ is simply y − t.
 void Softmax(linalg::Vector &neurons);
+
+/// Applies the activation function of the given type to neurons, in place
+void Apply(Type type, linalg::Vector &neurons);
 
 } // namespace actifunc

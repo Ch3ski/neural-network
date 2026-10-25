@@ -1,5 +1,6 @@
 #pragma once
 
+#include "activation_functions.h"
 #include "linear_algebra/matrix.h"
 #include "linear_algebra/vector.h"
 
@@ -13,6 +14,9 @@ class Layer
 public:
 
 private:
+    /// Activation function type for σ and derivative σ′
+    actifunc::Type m_activationType;
+
     /// Weight matrix W, size (neurons in this layer) × (inputs to this layer).
     linalg::Matrix m_weights;
     /// Bias vector b, one value per neuron in this layer.
