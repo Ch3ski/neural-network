@@ -2,6 +2,7 @@
 #include "test_utils.h"
 
 #include <cmath>
+#include <cstddef>
 
 using actifunc::Type;
 
@@ -85,6 +86,55 @@ static void test_evaluate_twice() {
   CHECK_NEAR(layer.outputs()[1], 5.0);
 }
 
+/// @brief Hidden layer 784 → 128 with ReLU: rows of W are alternately all 1
+///        and all −1, x[i] = 1/784, so ξ is 1 or −1 and y is 1 or 0
+static void test_evaluate_large_hidden_layer() {
+  linalg::Matrix w(128, 784, 0.0);
+  for (std::size_t row = 0; row < w.rows(); ++row) {
+    for (std::size_t column = 0; column < w.cols(); ++column) {
+      w(row, column) = row % 2 == 0 ? 1.0 : -1.0;
+    }
+  }
+  nn::Layer layer(Type::ReLu, w, linalg::Vector(128, 0.0));
+  const linalg::Vector x(784, 1.0 / 784.0);
+
+  test::benchmark("Layer evaluate 784 -> 128 (ReLU)", 200,
+                  [&] { layer.evaluate(x); });
+
+  std::size_t wrong = 0;
+  for (std::size_t row = 0; row < 128; ++row) {
+    const double expected = row % 2 == 0 ? 1.0 : 0.0;
+    if (std::abs(layer.outputs()[row] - expected) > 1e-9) {
+      ++wrong;
+    }
+  }
+  CHECK(wrong == 0);
+}
+
+/// @brief Output layer 128 → 10 with Softmax: W(row, ·) = row / 128 and
+///        x = all 1 give ξ = [0, 1, …, 9], so y[row] = e^row / Σ e^j
+static void test_evaluate_large_output_layer() {
+  linalg::Matrix w(10, 128, 0.0);
+  for (std::size_t row = 0; row < w.rows(); ++row) {
+    for (std::size_t column = 0; column < w.cols(); ++column) {
+      w(row, column) = static_cast<double>(row) / 128.0;
+    }
+  }
+  nn::Layer layer(Type::Softmax, w, linalg::Vector(10, 0.0));
+  const linalg::Vector x(128, 1.0);
+
+  test::benchmark("Layer evaluate 128 -> 10 (Softmax)", 2000,
+                  [&] { layer.evaluate(x); });
+
+  double sum = 0.0;
+  for (std::size_t j = 0; j < 10; ++j) {
+    sum += std::exp(static_cast<double>(j));
+  }
+  for (std::size_t row = 0; row < 10; ++row) {
+    CHECK_NEAR(layer.outputs()[row], std::exp(static_cast<double>(row)) / sum);
+  }
+}
+
 int main() {
   RUN(test_constructor_sizes);
   RUN(test_evaluate_relu);
@@ -93,5 +143,7 @@ int main() {
   RUN(test_evaluate_leaky_relu);
   RUN(test_evaluate_softmax);
   RUN(test_evaluate_twice);
+  RUN(test_evaluate_large_hidden_layer);
+  RUN(test_evaluate_large_output_layer);
   return test::summary();
 }

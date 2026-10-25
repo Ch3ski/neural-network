@@ -126,6 +126,32 @@ static void test_copy_is_independent() {
   CHECK(copy.cols() == original.cols());
 }
 
+/// @brief Writing and reading every element of a hidden-layer weight matrix
+///        (128 × 784): each element keeps its own value
+static void test_large_row_major_indexing() {
+  linalg::Matrix m(128, 784, 0.0);
+
+  test::benchmark("Matrix write all elements (128 x 784)", 100, [&] {
+    for (std::size_t row = 0; row < m.rows(); ++row) {
+      for (std::size_t col = 0; col < m.cols(); ++col) {
+        m(row, col) =
+            1000.0 * static_cast<double>(row) + static_cast<double>(col);
+      }
+    }
+  });
+
+  std::size_t wrong = 0;
+  for (std::size_t row = 0; row < m.rows(); ++row) {
+    for (std::size_t col = 0; col < m.cols(); ++col) {
+      if (m(row, col) !=
+          1000.0 * static_cast<double>(row) + static_cast<double>(col)) {
+        ++wrong;
+      }
+    }
+  }
+  CHECK(wrong == 0);
+}
+
 int main() {
   RUN(test_size_value_constructor);
   RUN(test_size_value_constructor_zero_rows);
@@ -137,5 +163,6 @@ int main() {
   RUN(test_row_major_indexing);
   RUN(test_const_access);
   RUN(test_copy_is_independent);
+  RUN(test_large_row_major_indexing);
   return test::summary();
 }

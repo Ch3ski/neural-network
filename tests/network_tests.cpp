@@ -2,6 +2,7 @@
 #include "test_utils.h"
 
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 using actifunc::Type;
@@ -41,8 +42,38 @@ static void test_evaluate_xor() {
   CHECK(std::abs(network.outputs()[0] - 0.0) < 1e-4);
 }
 
+/// @brief Real topology 784 → 128 → 10: hidden W = 1/784 everywhere, so with
+///        x = all 1 every hidden output is 1; output W(row, ·) = row / 128, so
+///        ξ = [0, 1, …, 9] and y[row] = e^row / Σ e^j
+static void test_evaluate_large_network() {
+  nn::Layer hidden(Type::ReLu, linalg::Matrix(128, 784, 1.0 / 784.0),
+                   linalg::Vector(128, 0.0));
+  linalg::Matrix outputWeights(10, 128, 0.0);
+  for (std::size_t row = 0; row < outputWeights.rows(); ++row) {
+    for (std::size_t column = 0; column < outputWeights.cols(); ++column) {
+      outputWeights(row, column) = static_cast<double>(row) / 128.0;
+    }
+  }
+  nn::Layer output(Type::Softmax, outputWeights, linalg::Vector(10, 0.0));
+  nn::Network network(std::vector<nn::Layer>{hidden, output});
+  const linalg::Vector x(784, 1.0);
+
+  test::benchmark("Network evaluate 784 -> 128 -> 10", 200,
+                  [&] { network.evaluate(x); });
+
+  double sum = 0.0;
+  for (std::size_t j = 0; j < 10; ++j) {
+    sum += std::exp(static_cast<double>(j));
+  }
+  for (std::size_t row = 0; row < 10; ++row) {
+    CHECK_NEAR(network.outputs()[row],
+               std::exp(static_cast<double>(row)) / sum);
+  }
+}
+
 int main() {
   RUN(test_evaluate_passes_outputs);
   RUN(test_evaluate_xor);
+  RUN(test_evaluate_large_network);
   return test::summary();
 }

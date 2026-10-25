@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 
@@ -51,6 +52,26 @@ inline void report_near(double actual, double expected, const char *file,
 inline int summary() {
   std::printf("%d checks, %d failed\n", checks, failures);
   return failures == 0 ? 0 : 1;
+}
+
+/// @brief Calls function runs times and prints the average time of one call,
+///        and the time of 60000 calls (one pass over the training set)
+/// @param name     What is measured, printed in front of the times
+/// @param runs     How many times function is called
+/// @param function Callable without arguments, the measured work
+/// @note Times from ./test.sh are Debug builds (no -O3), so slower than run.sh
+template <typename Function>
+void benchmark(const char *name, int runs, Function function) {
+  const auto start = std::chrono::steady_clock::now();
+  for (int i = 0; i < runs; ++i) {
+    function();
+  }
+  const std::chrono::duration<double> elapsed =
+      std::chrono::steady_clock::now() - start;
+
+  const double seconds = elapsed.count() / runs;
+  std::printf("  %s: %.2f us per call, %.3f s per 60000 calls\n", name,
+              seconds * 1e6, seconds * 60000);
 }
 
 } // namespace test
