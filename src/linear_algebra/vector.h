@@ -52,6 +52,14 @@ public:
     template <DoubleFunction Function>
     void apply(Function function);
 
+    /// @brief Sets every element i to function(source[i]), source is unchanged
+    /// @tparam Function Callable taking and returning a double, checked by DoubleFunction
+    /// @param source   Vector to read from
+    /// @param function Function applied to every element of source, e.g. a lambda
+    /// @pre source.size() == size()
+    template <DoubleFunction Function>
+    void apply(const Vector &source, Function function);
+
     /* OPERATIONS */
 
     /// @brief Adds other element by element, in place
@@ -120,6 +128,16 @@ void Vector::apply(F function)
 {
     for (double &value : m_data) {
         value = function(value);
+    }
+}
+
+template <DoubleFunction F>
+void Vector::apply(const Vector &source, F function)
+{
+    assert(size() == source.size() && "Vector apply: sizes differ");
+
+    for (std::size_t i = 0; i < size(); ++i) {
+        m_data[i] = function(source[i]);
     }
 }
 

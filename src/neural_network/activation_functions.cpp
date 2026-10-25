@@ -8,72 +8,72 @@
 namespace actifunc
 {
 
-void Sigmoid(linalg::Vector &neurons)
+void Sigmoid(const linalg::Vector &potentials, linalg::Vector &outputs)
 {
-    neurons.apply([](double x) { return 1.0 / (1.0 + std::exp(-x)); });
+    outputs.apply(potentials, [](double x) { return 1.0 / (1.0 + std::exp(-x)); });
 }
 
-void Tanh(linalg::Vector &neurons)
+void Tanh(const linalg::Vector &potentials, linalg::Vector &outputs)
 {
     // std::tanh is overloaded (float, double, ...), so it is wrapped in a
     // lambda instead of being passed directly.
-    neurons.apply([](double x) { return std::tanh(x); });
+    outputs.apply(potentials, [](double x) { return std::tanh(x); });
 }
 
-void ReLu(linalg::Vector &neurons)
+void ReLu(const linalg::Vector &potentials, linalg::Vector &outputs)
 {
-    neurons.apply([](double x) { return std::max(0.0, x); });
+    outputs.apply(potentials, [](double x) { return std::max(0.0, x); });
 }
 
-void LeakyReLu(linalg::Vector &neurons, double alpha)
+void LeakyReLu(const linalg::Vector &potentials, linalg::Vector &outputs, double alpha)
 {
-    neurons.apply([alpha](double x) { return x < 0.0 ? alpha * x : x; });
+    outputs.apply(potentials, [alpha](double x) { return x < 0.0 ? alpha * x : x; });
 }
 
-void Softmax(linalg::Vector &neurons)
+void Softmax(const linalg::Vector &potentials, linalg::Vector &outputs)
 {
-    if (neurons.size() == 0) {
+    if (potentials.size() == 0) {
         return;
     }
 
     // Shifting by the maximum does not change the result, but keeps every
     // exponent <= 0, so exp() cannot overflow to infinity.
-    double max = neurons[0];
-    for (std::size_t i = 1; i < neurons.size(); ++i) {
-        max = std::max(max, neurons[i]);
+    double max = potentials[0];
+    for (std::size_t i = 1; i < potentials.size(); ++i) {
+        max = std::max(max, potentials[i]);
     }
 
     double sum = 0.0;
-    neurons.apply([max, &sum](double x) {
+    outputs.apply(potentials, [max, &sum](double x) {
         const double e = std::exp(x - max);
         sum += e;
         return e;
     });
 
-    neurons /= sum;
+    outputs /= sum;
 }
 
-void Apply(Type type, linalg::Vector &neurons)
+void Apply(Type type, const linalg::Vector &potentials, linalg::Vector &outputs)
 {
     switch (type) {
     case Type::Sigmoid:
-        Sigmoid(neurons);
+        Sigmoid(potentials, outputs);
         return;
 
     case Type::Tanh:
-        Tanh(neurons);
+        Tanh(potentials, outputs);
         return;
 
     case Type::ReLu:
-        ReLu(neurons);
+        ReLu(potentials, outputs);
         return;
 
     case Type::LeakyReLu:
-        LeakyReLu(neurons);
+        LeakyReLu(potentials, outputs);
         return;
 
     case Type::Softmax:
-        Softmax(neurons);
+        Softmax(potentials, outputs);
         return;
     }
 
