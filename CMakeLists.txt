@@ -19,7 +19,8 @@ add_compile_options(
 )
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+# NDEBUG removes every assert() from Release builds (run.sh); Debug keeps them
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 # Link-time optimization: lets the compiler inline small functions defined in
 # other .cpp files (e.g. Vector::operator[] from vector.cpp) into hot loops.

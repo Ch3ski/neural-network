@@ -21,9 +21,6 @@ concept DoubleFunction = std::invocable<F, double> && std::same_as<std::invoke_r
 class Vector
 {
 public:
-    /// @brief Creates an empty vector with 0 elements
-    Vector() = default;
-
     /// @brief Creates a vector of size elements, all set to value
     /// @param size  Number of elements
     /// @param value Initial value of every element
@@ -31,7 +28,7 @@ public:
 
     /// @brief Creates a vector from the listed values
     /// @param list Values of the elements, in order
-    explicit Vector(std::initializer_list<double> list);
+    explicit Vector(std::initializer_list<double> data);
 
     /// @brief Returns the number of elements
     /// @return Number of elements
@@ -98,8 +95,8 @@ inline Vector::Vector(std::size_t size, double value)
 {
 }
 
-inline Vector::Vector(std::initializer_list<double> list)
-    : m_data{list}
+inline Vector::Vector(std::initializer_list<double> data)
+    : m_data{data}
 {
 }
 
