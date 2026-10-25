@@ -26,7 +26,6 @@ public:
     std::size_t cols() const;
 
     double &operator()(std::size_t row, std::size_t column);
-
     const double &operator()(std::size_t row, std::size_t column) const;
 
 private:

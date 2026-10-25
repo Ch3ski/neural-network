@@ -34,6 +34,7 @@ add_executable(network
 
     src/linear_algebra/vector.h
     src/linear_algebra/matrix.h
+    src/linear_algebra/matrix_vector.h
 
     # Sources
     src/main.cpp
@@ -49,12 +50,5 @@ target_include_directories(network PRIVATE ${CMAKE_SOURCE_DIR}/src)
 #   cmake --build build-debug && ctest --test-dir build-debug --output-on-failure
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     enable_testing()
-
-    add_executable(vector_tests tests/vector_tests.cpp)
-    target_include_directories(vector_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
-    add_test(NAME vector_tests COMMAND vector_tests)
-
-    add_executable(matrix_tests tests/matrix_tests.cpp)
-    target_include_directories(matrix_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
-    add_test(NAME matrix_tests COMMAND matrix_tests)
+    add_subdirectory(tests)
 endif()
