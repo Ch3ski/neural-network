@@ -21,14 +21,23 @@ add_compile_options(
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+# Link-time optimization: lets the compiler inline small functions defined in
+# other .cpp files (e.g. Vector::operator[] from vector.cpp) into hot loops.
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+
 add_executable(network
     # Headers
     src/neural_network/layer.h
     src/neural_network/network.h
+    src/neural_network/activation_functions.h
 
     src/linear_algebra/vector.h
     src/linear_algebra/matrix.h
 
     # Sources
     src/main.cpp
+    
+    src/neural_network/activation_functions.cpp
 )
+
+target_include_directories(network PRIVATE ${CMAKE_SOURCE_DIR}/src)
