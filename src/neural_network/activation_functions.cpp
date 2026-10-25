@@ -9,32 +9,24 @@ namespace actifunc
 
 void Sigmoid(linalg::Vector &neurons)
 {
-    for (std::size_t i = 0; i < neurons.size(); ++i) {
-        neurons[i] = 1.0 / (1.0 + std::exp(-neurons[i]));
-    }
+    neurons.apply([](double x) { return 1.0 / (1.0 + std::exp(-x)); });
 }
 
 void Tanh(linalg::Vector &neurons)
 {
-    for (std::size_t i = 0; i < neurons.size(); ++i) {
-        neurons[i] = std::tanh(neurons[i]);
-    }
+    // std::tanh is overloaded (float, double, ...), so it is wrapped in a
+    // lambda instead of being passed directly.
+    neurons.apply([](double x) { return std::tanh(x); });
 }
 
 void ReLu(linalg::Vector &neurons)
 {
-    for (std::size_t i = 0; i < neurons.size(); ++i) {
-        neurons[i] = std::max(0.0, neurons[i]);
-    }
+    neurons.apply([](double x) { return std::max(0.0, x); });
 }
 
 void LeakyReLu(linalg::Vector &neurons, double alpha)
 {
-    for (std::size_t i = 0; i < neurons.size(); ++i) {
-        if (neurons[i] < 0.0) {
-            neurons[i] *= alpha;
-        }
-    }
+    neurons.apply([alpha](double x) { return x < 0.0 ? alpha * x : x; });
 }
 
 void Softmax(linalg::Vector &neurons)
@@ -51,14 +43,13 @@ void Softmax(linalg::Vector &neurons)
     }
 
     double sum = 0.0;
-    for (std::size_t i = 0; i < neurons.size(); ++i) {
-        neurons[i] = std::exp(neurons[i] - max);
-        sum += neurons[i];
-    }
+    neurons.apply([max, &sum](double x) {
+        const double e = std::exp(x - max);
+        sum += e;
+        return e;
+    });
 
-    for (std::size_t i = 0; i < neurons.size(); ++i) {
-        neurons[i] /= sum;
-    }
+    neurons /= sum;
 }
 
 } // namespace actifunc
