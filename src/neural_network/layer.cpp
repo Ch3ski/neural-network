@@ -27,4 +27,15 @@ void Layer::forward(const linalg::Vector &input)
     actifunc::Apply(m_activationType, m_potentials, m_outputs);
 }
 
+void Layer::backward(const linalg::Vector &input)
+{
+}
+
+void Layer::computeDeltas(const linalg::Vector &target)
+{
+    assert(target.size() == m_outputs.size() && "Layer: target size differs from the output size");
+
+    m_deltas = m_outputs -= target;
+}
+
 } // namespace nn

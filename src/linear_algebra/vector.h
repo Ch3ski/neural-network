@@ -198,6 +198,22 @@ inline Vector &Vector::operator-=(double scalar)
 // Copy versions: the parameter v is taken by value, so it already is the copy
 // It is modified and returned (moved out, no second copy)
 
+/// @brief
+/// @param v1
+/// @param v2
+/// @return
+inline Vector operator+(Vector v1, Vector v2)
+{
+    v1 += v2;
+    return v1;
+}
+
+inline Vector operator-(Vector v1, Vector v2)
+{
+    v1 -= v2;
+    return v1;
+}
+
 /// @brief Multiplies every element by scalar, as a copy (v * scalar)
 /// @param v      Vector to multiply, taken by value as the copy
 /// @param scalar Factor

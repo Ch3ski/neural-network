@@ -19,13 +19,17 @@ public:
     /// @pre bias.size() == weights.rows()
     explicit Layer(actifunc::Type activationType, linalg::Matrix weights, linalg::Vector bias);
 
+    /// @brief Returns the inner potentials ξ = W · x + b of the last forward pass, read-only
+    /// @return Const reference to the potentials, no copy
+    const linalg::Vector &potentials() const;
+
     /// @brief Returns the outputs y = σ(ξ) of the last forward pass, read-only
     /// @return Const reference to the outputs, no copy
     const linalg::Vector &outputs() const;
 
-    /// @brief Returns the inner potentials ξ = W · x + b of the last forward pass, read-only
-    /// @return Const reference to the potentials, no copy
-    const linalg::Vector &potentials() const;
+    /// @brief
+    /// @return
+    const linalg::Vector &deltas() const;
 
     /// @brief Computes ξ = W · x + b and y = σ(ξ) for one input
     ///        Read the results with potentials() and outputs()
@@ -34,6 +38,8 @@ public:
     void forward(const linalg::Vector &input);
 
     void backward(const linalg::Vector &input);
+
+    void computeDeltas(const linalg::Vector &target);
 
 private:
     /// Activation function type for σ and derivative σ′
@@ -48,6 +54,9 @@ private:
     linalg::Vector m_potentials;
     /// Outputs y = σ(ξ) from the last forward pass, one per neuron.
     linalg::Vector m_outputs;
+
+    /// Delta derivation of the each neuron in layer
+    linalg::Vector m_deltas;
 };
 
 inline const linalg::Vector &Layer::potentials() const
@@ -58,6 +67,11 @@ inline const linalg::Vector &Layer::potentials() const
 inline const linalg::Vector &Layer::outputs() const
 {
     return m_outputs;
+}
+
+inline const linalg::Vector &Layer::deltas() const
+{
+    return m_deltas;
 }
 
 } // namespace nn
